@@ -32,6 +32,36 @@ class DB {
         return $this;
     }
 
+    public function min($field, $name = null)
+    {
+        $this->select = "MIN({$field})" . (!is_null($name) ? " AS {$name}" : '');
+        return $this;
+    }
+
+    public function max($field, $name = null)
+    {
+        $this->select = "MAX({$field})" . (!is_null($name) ? " AS {$name}" : '');
+        return $this;
+    }
+
+    public function count($field, $name = null)
+    {
+        $this->select = "COUNT({$field})" . (!is_null($name) ? " AS {$name}" : '');
+        return $this;
+    }
+
+    public function avg($field, $name = null)
+    {
+        $this->select = "AVG({$field})" . (!is_null($name) ? " AS {$name}" : '');
+        return $this;
+    }
+
+    public function sum($field, $name = null)
+    {
+        $this->select = "SUM({$field})" . (!is_null($name) ? " AS {$name}" : '');
+        return $this;
+    }
+
     public function select($fields)
     {
         $this->select = is_array($fields) ? implode(',', $fields) : $fields;
