@@ -46,4 +46,29 @@ class DB {
         return $result->fetchAll();
     }
 
+    public function insert(Array $fields)
+    {
+        $columns = implode(',', array_keys($fields));
+        $values = '';
+
+        foreach ($fields as $key => $val) {
+            $values .= is_int($val) ? $val : "'{$val}'" . ",";
+        }
+        
+        $sql = sprintf("INSERT INTO %s (%s) VALUES(%s)", $this->table, $columns, substr($values, 0, -1));
+        return $this->runQuery($sql);
+    }
+
+    private function runQuery($sql)
+    {
+        $query = $this->conn->prepare($sql);
+        if ($query->execute()) return true;
+            else return false;
+    }
+
+    public function __destruct()
+    {
+        if (is_resource($this->conn)) $this->conn = null;
+    }
+
 }
