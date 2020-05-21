@@ -8,6 +8,7 @@ class DB {
 
     private $conn;
     private $table;
+    private $select = '*';
     
     public function __construct(Array $config)
     {
@@ -31,9 +32,15 @@ class DB {
         return $this;
     }
 
+    public function select($fields)
+    {
+        $this->select = is_array($fields) ? implode(',', $fields) : $fields;
+        return $this;
+    }
+
     public function get()
     {
-        $sql = sprintf("SELECT * FROM %s", $this->table);
+        $sql = sprintf("SELECT %s FROM %s", $this->select, $this->table);
         $result = $this->conn->prepare($sql);
         $result->execute();
         return $result->fetchAll();
