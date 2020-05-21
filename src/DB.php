@@ -9,6 +9,8 @@ class DB {
     private $conn;
     private $table;
     private $select = '*';
+    private $where;
+    private $op = ['like', '=', '!=', '<', '>', '<=', '>=', '<>'];
     
     public function __construct(Array $config)
     {
@@ -68,9 +70,45 @@ class DB {
         return $this;
     }
 
+    private function setWhere($column, $op = null, $value = null)
+    {
+        if (empty($op) && empty($value)) {
+            $where = "id = {$column}";
+        } elseif (empty($value)) {
+            $where = "{$column} = {$op}";
+        } else {
+            $where = "{$column} {$op} {$value}";
+        }
+
+        return $where;
+    }
+
+    public function where($column, $op = null, $value = null)
+    {
+        $_where = 'WHERE ';
+
+        if (is_array($column)) {
+            foreach ($column as $keys => $value) {
+                $_where .= $this->setWhere(
+                    $value[0],
+                    is_int($value[1]) ? $value[1] : (in_array($value[1], $this->op) ? $value[1] : "'{$value[1]}'"),
+                    isset($value[2]) ? "'{$value[2]}'" : ''
+                ) . " AND ";
+            }
+            
+            $_where = substr($_where, 0, -5);
+        } else {
+            $_where .= $this->setWhere($column, $op, $value);
+        }
+
+        $this->where = $_where;
+        
+        return $this;
+    }
+
     public function get()
     {
-        $sql = sprintf("SELECT %s FROM %s", $this->select, $this->table);
+        $sql = sprintf("SELECT %s FROM %s %s", $this->select, $this->table, $this->where);
         $result = $this->conn->prepare($sql);
         $result->execute();
         return $result->fetchAll();
