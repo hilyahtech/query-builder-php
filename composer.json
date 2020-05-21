@@ -1,0 +1,14 @@
+{
+    "name": "hilyahtech/query-builder-php",
+    "description": "Query Builder PDO untuk PHP, dukungan MySQL",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Febri Hidayan",
+            "email": "febrihidayan20@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
