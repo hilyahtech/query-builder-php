@@ -5,11 +5,13 @@ namespace HilyahTech\QueryBuilder;
 use PDO;
 
 class DB {
+    use Helpers;
 
     private $conn;
     private $table;
     private $select = '*';
     private $where;
+    private $orderBy;
     private $op = ['like', '=', '!=', '<', '>', '<=', '>=', '<>'];
     
     public function __construct(Array $config)
@@ -75,9 +77,9 @@ class DB {
         if (empty($op) && empty($value)) {
             $where = " id = {$column} ";
         } elseif (empty($value)) {
-            $where = " {$column} = {$op} ";
+            $where = " {$column} = " . $this->isText($op);
         } else {
-            $where = " {$column} {$op} {$value} ";
+            $where = " {$column} {$op} " . $this->isText($value);
         }
 
         return $where;
@@ -85,7 +87,7 @@ class DB {
 
     public function where($column, $op = null, $value = null)
     {
-        $_where = 'WHERE';
+        $_where = '';
 
         if (is_array($column)) {
             $op = is_null($op) ? 'AND' : $op;
@@ -105,20 +107,57 @@ class DB {
             $_where .= $this->setWhere($column, $op, $value);
         }
 
-        $this->where = $_where;
+        $this->where .= empty($this->where) ? $_where : ' AND ' . $_where;
         
+        return $this;
+    }
+
+    public function whereIn($column, Array $value)
+    {
+        $value = implode(', ', $value);
+        $_where = "{$column} IN ({$value})";
+        $this->where .= empty($this->where) ? $_where : ' AND ' . $_where;
+        return $this;
+    }
+
+    public function whereNull($column)
+    {
+        $_where = "{$column} IS NULL";
+        $this->where .= empty($this->where) ? $_where : ' AND ' . $_where;
+        return $this;
+    }
+
+    public function whereNotNull($column)
+    {
+        $_where .= "{$column} IS NOT NULL";
+        $this->where .= empty($this->where) ? $_where : ' AND ' . $_where;
         return $this;
     }
 
     public function orderBy($column, $sort = 'ASC')
     {
-        $this->where = " ORDER BY {$column} {$sort}";
+        $this->orderBy = " ORDER BY {$column} {$sort}";
         return $this;
     }
 
+    private function setExtract()
+    {
+        $sql = '';
+
+        $sql .= !empty($this->where) ? 'WHERE ' . $this->where : '';
+        $sql .= $this->orderBy;
+
+        $this->table = null;
+        $this->select = null;
+        $this->where = null;
+        $this->orderBy = null;
+
+        return $sql;
+    }
+    
     public function get()
     {
-        $sql = sprintf("SELECT %s FROM %s %s", $this->select, $this->table, $this->where);
+        $sql = sprintf("SELECT %s FROM %s %s", $this->select, $this->table, $this->setExtract());
         $result = $this->conn->prepare($sql);
         $result->execute();
         return $result->fetchAll();
