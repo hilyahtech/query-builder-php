@@ -176,6 +176,26 @@ class DB {
         return $this->runQuery($sql);
     }
 
+    public function update(Array $fields)
+    {
+        $_fields = '';
+
+        foreach ($fields as $key => $value) {
+            $_fields .= "{$key} = " . $this->istext($value) . ", ";
+        }
+
+        $_fields = substr($_fields, 0, -2);
+
+        $sql = sprintf("UPDATE %s SET %s WHERE %s", $this->table, $_fields, $this->where);
+        return $this->runQuery($sql);
+    }
+
+    public function delete()
+    {
+        $sql = sprintf("DELETE FROM %s WHERE %s", $this->table, $this->where);
+        return $this->runQuery($sql);
+    }
+
     private function runQuery($sql)
     {
         $query = $this->conn->prepare($sql);
