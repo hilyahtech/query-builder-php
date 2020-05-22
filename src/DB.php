@@ -73,11 +73,11 @@ class DB {
     private function setWhere($column, $op = null, $value = null)
     {
         if (empty($op) && empty($value)) {
-            $where = "id = {$column}";
+            $where = " id = {$column} ";
         } elseif (empty($value)) {
-            $where = "{$column} = {$op}";
+            $where = " {$column} = {$op} ";
         } else {
-            $where = "{$column} {$op} {$value}";
+            $where = " {$column} {$op} {$value} ";
         }
 
         return $where;
@@ -85,18 +85,22 @@ class DB {
 
     public function where($column, $op = null, $value = null)
     {
-        $_where = 'WHERE ';
+        $_where = 'WHERE';
 
         if (is_array($column)) {
+            $op = is_null($op) ? 'AND' : $op;
+
             foreach ($column as $keys => $value) {
+
                 $_where .= $this->setWhere(
                     $value[0],
                     is_int($value[1]) ? $value[1] : (in_array($value[1], $this->op) ? $value[1] : "'{$value[1]}'"),
                     isset($value[2]) ? "'{$value[2]}'" : ''
-                ) . " AND ";
+                ) . $op; 
+
             }
             
-            $_where = substr($_where, 0, -5);
+            $_where = substr($_where, 0, -strlen($op));
         } else {
             $_where .= $this->setWhere($column, $op, $value);
         }
