@@ -106,6 +106,12 @@ class DB {
         return $this;
     }
 
+    public function orderBy($column, $sort = 'ASC')
+    {
+        $this->where = " ORDER BY {$column} {$sort}";
+        return $this;
+    }
+
     public function get()
     {
         $sql = sprintf("SELECT %s FROM %s %s", $this->select, $this->table, $this->where);
