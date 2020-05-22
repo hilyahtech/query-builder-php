@@ -163,6 +163,14 @@ class DB {
         return $result->fetchAll();
     }
 
+    public function first()
+    {
+        $sql = sprintf("SELECT %s FROM %s %s LIMIT 1", $this->select, $this->table, $this->setExtract());
+        $result = $this->conn->prepare($sql);
+        $result->execute();
+        return $result->fetchAll();
+    }
+
     public function insert(Array $fields)
     {
         $columns = implode(',', array_keys($fields));

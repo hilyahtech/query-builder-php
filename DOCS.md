@@ -8,7 +8,7 @@ Membuat file `composer.json`
 ```json
 {
     "require": {
-        "hilyahtech/query-builder-php": "dev-master"
+        "hilyahtech/query-builder-php": "^1.0"
     }
 }
 ```
