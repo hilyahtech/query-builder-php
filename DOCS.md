@@ -122,7 +122,7 @@ $db->table('users')->get();
 # sql: "SELECT * FROM users"
 
 $db->table('users')->first();
-# sql: "SELECT * FROM users"
+# sql: "SELECT * FROM users LIMIT 1"
 ```
 
 ### where
