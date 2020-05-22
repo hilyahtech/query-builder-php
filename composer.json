@@ -1,16 +1,21 @@
 {
     "name": "hilyahtech/query-builder-php",
     "description": "Query Builder PDO untuk PHP, dukungan MySQL",
+    "keywords": ["php", "pdo", "sql", "query", "builder", "query builder"],
+    "homepage": "https://github.com/hilyahtech/query-builder-php",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
             "name": "Febri Hidayan",
-            "email": "febrihidayan20@gmail.com"
+            "email": "febrihidayan20@gmail.com",
+            "homepage": "https://sekolahprogram.com"
         }
     ],
     "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "php": "^7.3"
+    },
     "autoload": {
         "psr-4": {
             "HilyahTech\\QueryBuilder\\": "src/"

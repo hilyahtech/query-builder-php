@@ -1,3 +1,4 @@
 .vscode
+composer.lock
 test/test.php
 vendor
