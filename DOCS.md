@@ -73,6 +73,10 @@ $db = new \HilyahTech\QueryBuilder\DB($config);
 * [get and first](#get-and-first)
 * [where](#where)
 * [where in](#where-in)
+* [between](#between)
+* [like](#like)
+* [groupBy](#groupby)
+* [having](#having)
 * [orderBy](#orderby)
 * [insert](#insert)
 * [update](#update)
@@ -145,17 +149,62 @@ $db->table('users')->where([['id', 1], ['status', 1]], 'OR')->get();
 
 ### where in
 ```php
-$db->table('users')->whereIn('id', [1, 2, 3])->get();
-# sql: "SELECT * FROM users WHERE id IN (1, 2, 3)"
+$db->table('test')->whereIn('id', [1, 2, 3])->get();
+# sql: "SELECT * FROM test WHERE id IN (1, 2, 3)"
+
+$db->table('test')->whereNotIn('id', [1, 2, 3])->get();
+# sql: "SELECT * FROM test WHERE id NOT IN (1, 2, 3)"
+```
+
+### between
+```php
+$db->table('test')->between('age', 17, 25)->get();
+# sql: "SELECT * FROM test WHERE age BETWEEN 17, 25"
+
+$db->table('test')->between('age', [17, 25])->get();
+# sql: "SELECT * FROM test WHERE age BETWEEN 17, 25"
+
+$db->table('test')->notBetween('age', [17, 25])->get();
+# sql: "SELECT * FROM test WHERE age NOT BETWEEN 17, 25"
+```
+
+### like
+```php
+$db->table('test')->like('name', '%example%')->get();
+# sql: "SELECT * FROM test WHERE name LIKE %example%"
+
+$db->table('test')->notLike('name', '%example%')->get();
+# sql: "SELECT * FROM test WHERE name NOT LIKE %example%"
+```
+
+### groupBy
+```php
+$db->table('test')->groupBy('id')->get();
+# sql: "SELECT * FROM test GROUP BY id"
+
+$db->table('test')->groupBy(['id', 'user_id'])->get();
+# sql: "SELECT * FROM test GROUP BY id, user_id"
+```
+
+### having
+```php
+$db->table('test')->having('COUNT(user_id)', 5)->get();
+# sql: "SELECT * FROM test HAVING COUNT(user_id) > 5"
+
+$db->table('test')->having('COUNT(user_id)', '>=', 5)->get();
+# sql: "SELECT * FROM test HAVING COUNT(user_id) >= 5"
+
+$db->table('test')->having('COUNT(user_id) > ?', [2])->get();
+# sql: "SELECT * FROM test HAVING COUNT(user_id) >= 5"
 ```
 
 ### orderBy
 ```php
-$db->table('users')->orderBy('name')->get();
-# sql: "SELECT * FROM users ORDER BY name ASC"
+$db->table('test')->orderBy('name')->get();
+# sql: "SELECT * FROM test ORDER BY name ASC"
 
-$db->table('users')->orderBy('name', 'DESC')->get();
-# sql: "SELECT * FROM users ORDER BY name DESC"
+$db->table('test')->orderBy('name', 'DESC')->get();
+# sql: "SELECT * FROM test ORDER BY name DESC"
 ```
 
 ### insert

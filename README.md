@@ -2,6 +2,8 @@
 
 Query Builder dengan PHP PDO dapat digunakan dengan mudah dan akses data lebih cepat.
 
+[![Latest Stable Version](https://poser.pugx.org/hilyahtech/query-builder-php/v)](//packagist.org/packages/hilyahtech/query-builder-php) [![Total Downloads](https://poser.pugx.org/hilyahtech/query-builder-php/downloads)](//packagist.org/packages/hilyahtech/query-builder-php) [![Latest Unstable Version](https://poser.pugx.org/hilyahtech/query-builder-php/v/unstable)](//packagist.org/packages/hilyahtech/query-builder-php) [![License](https://poser.pugx.org/hilyahtech/query-builder-php/license)](//packagist.org/packages/hilyahtech/query-builder-php)
+
 ## Instalasi
 Cara menginstall Query Builder PHP melalui [composer](http://getcomposer.org), kemudian jalankan perintah berikut untuk instalasi.
 

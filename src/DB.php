@@ -11,8 +11,12 @@ class DB {
     private $table;
     private $select = '*';
     private $where;
+    private $groupBy;
+    private $having;
     private $orderBy;
     private $op = ['like', '=', '!=', '<', '>', '<=', '>=', '<>'];
+    private $state = 'AND';
+    private $not;
     
     public function __construct(Array $config)
     {
@@ -75,20 +79,7 @@ class DB {
         return $this;
     }
 
-    private function setWhere($column, $op = null, $value = null)
-    {
-        if (empty($op) && empty($value)) {
-            $where = " id = {$column} ";
-        } elseif (empty($value)) {
-            $where = " {$column} = " . $this->isText($op);
-        } else {
-            $where = " {$column} {$op} " . $this->isText($value);
-        }
-
-        return $where;
-    }
-
-    public function where($column, $op = null, $value = null)
+    private function setWhere($column, $op, $value, $sql = '')
     {
         $_where = '';
 
@@ -97,49 +88,245 @@ class DB {
 
             foreach ($column as $keys => $value) {
 
-                $_where .= $this->setWhere(
-                    $value[0],
-                    is_int($value[1]) ? $value[1] : (in_array($value[1], $this->op) ? $value[1] : "'{$value[1]}'"),
-                    isset($value[2]) ? "'{$value[2]}'" : ''
-                ) . $op; 
+                if (is_array($value)) {
+                    $_where .= $this->setWhere(
+                        $value[0],
+                        isset($value[1]) ? (is_int($value[1]) ? $value[1] : (in_array($value[1], $this->op) ? $value[1] : "'{$value[1]}'")) : '',
+                        isset($value[2]) ? "'{$value[2]}'" : ''
+                    ) . $op;
+                } else {
+                    die('Lihat dokumentasi');
+                }
 
             }
-            
+
             $_where = substr($_where, 0, -strlen($op));
         } else {
-            $_where .= $this->setWhere($column, $op, $value);
+            if (empty($op) && empty($value)) {
+                $_where = " {$sql} id = {$column} ";
+            } elseif (empty($value)) {
+                $_where = " {$sql} {$column} = " . $this->isText($op);
+            } else {
+                $_where = " {$sql} {$column} {$op} " . $this->isText($value);
+            }
         }
 
-        $this->where .= empty($this->where) ? $_where : ' AND ' . $_where;
+        return $_where;
+    }
+
+    public function where($column, $op = null, $value = null)
+    {
+        $_where = $this->setWhere($column, $op, $value);
+
+        $this->where .= $this->isState($_where);
         
         return $this;
     }
 
-    public function whereIn($column, Array $value)
+    public function orWhere($column, $op = null, $value = null)
     {
-        $value = implode(', ', $value);
-        $_where = "{$column} IN ({$value})";
-        $this->where .= empty($this->where) ? $_where : ' AND ' . $_where;
+        $this->state = 'OR';
+        $this->where($column, $op, $value);
+
+        return $this;
+    }
+
+    public function notWhere($column, $op = null, $value = null)
+    {
+        $_where = $this->setWhere($column, $op, $value, 'NOT');
+
+        $this->where .= $this->isState($_where);
+
+        return $this;
+    }
+
+    public function orNotWhere($column, $op = null, $value = null)
+    {
+        $this->state = 'OR';
+        $this->notWhere($column, $op, $value);
+
         return $this;
     }
 
     public function whereNull($column)
     {
         $_where = "{$column} IS NULL";
-        $this->where .= empty($this->where) ? $_where : ' AND ' . $_where;
+
+        $this->where .= $this->isState($_where);
+
+        return $this;
+    }
+
+    public function orWhereNull($column)
+    {
+        $this->state = 'OR';
+        $this->whereNull($column);
+
         return $this;
     }
 
     public function whereNotNull($column)
     {
-        $_where .= "{$column} IS NOT NULL";
-        $this->where .= empty($this->where) ? $_where : ' AND ' . $_where;
+        $_where = "{$column} IS NOT NULL";
+
+        $this->where .= $this->isState($_where);
+
+        return $this;
+    }
+
+    public function orWhereNotNull($column)
+    {
+        $this->state = 'OR';
+        $this->whereNotNull($column);
+
+        return $this;
+    }
+
+    public function whereIn($column, array $fields)
+    {
+        $array = '';
+
+        foreach ($fields as $key => $value) {
+            $array .= $this->isText($value) . ',';
+        }
+
+        $array = substr($array, 0, -1);
+        $_where = "{$column} IN ({$array})";
+
+        $this->where .= $this->isState($_where);
+
+        return $this;
+    }
+
+    public function orWhereIn($column, array $value)
+    {
+        $this->state = 'OR';
+        $this->whereIn($column, $value);
+
+        return $this;
+    }
+
+    public function whereNotIn($column, array $value)
+    {
+        $value = implode(', ', $value);
+        $_where = "{$column} NOT IN ({$value})";
+
+        $this->where .= $this->isState($_where);
+
+        return $this;
+    }
+
+    public function orWhereNotIn($column, array $value)
+    {
+        $this->state = 'OR';
+        $this->whereNotIn($column, $value);
+
+        return $this;
+    }
+
+    public function between($column, $val1, $val2 = null)
+    {
+        $param = is_array($val1) ?
+                $this->isText($val1[0]) .' AND '.  $this->isText($val1[1]) :
+                $this->isText($val1) .' AND '.  $this->isText($val2);
+                
+        $_between = "{$column} {$this->not} BETWEEN {$param}";
+
+        $this->not = '';
+        $this->where .= $this->isState($_between);
+
+        return $this;
+    }
+
+    public function orBetween($column, $val1, $val2 = null)
+    {
+        $this->state = 'OR';
+        $this->between($column, $val1, $val2);
+
+        return $this;
+    }
+
+    public function notBetween($column, $val1, $val2 = null)
+    {
+        $this->not = 'NOT';
+        $this->between($column, $val1, $val2);
+
+        return $this;
+    }
+
+    public function orNotBetween($column, $val1, $val2 = null)
+    {
+        $this->state = 'OR';
+        $this->not = 'NOT';
+        $this->between($column, $val1, $val2);
+
+        return $this;
+    }
+
+    public function like($column, $search)
+    {
+        $this->where .= $this->isState("{$column} {$this->not} LIKE {$search}");
+        $this->not = '';
+
+        return $this;
+    }
+
+    public function orLike($column, $search)
+    {
+        $this->state = 'OR';
+        $this->like($column, $search);
+
+        return $this;
+    }
+
+    public function notLike($column, $search)
+    {
+        $this->not = 'NOT';
+        $this->like($column, $search);
+
+        return $this;
+    }
+
+    public function orNotLike($column, $search)
+    {
+        $this->state = 'OR';
+        $this->not = 'NOT';
+        $this->like($column, $search);
+
+        return $this;
+    }
+
+    public function groupBy($values)
+    {
+        $this->groupBy = " GROUP BY {$this->isIm($values)}";
+
+        return $this;
+    }
+
+    public function having($field, $op = null, $value = null)
+    {
+        $_having = ' HAVING ';
+
+        if (is_array($op)) {
+            $q = explode('?', $field);
+            foreach ($op as $key => $val) {
+                $_having .= $q[$key] . $val;
+            }
+        } elseif (empty($value)) {
+            $_having .= "{$field} > {$op}";
+        } else {
+            $_having .= "{$field} {$op} {$value}";
+        }
+        
+        $this->having = $_having;
+        
         return $this;
     }
 
     public function orderBy($column, $sort = 'ASC')
     {
         $this->orderBy = " ORDER BY {$column} {$sort}";
+
         return $this;
     }
 
@@ -148,12 +335,11 @@ class DB {
         $sql = '';
 
         $sql .= !empty($this->where) ? 'WHERE ' . $this->where : '';
+        $sql .= $this->groupBy;
+        $sql .= $this->having;
         $sql .= $this->orderBy;
 
-        $this->table = null;
-        $this->select = null;
-        $this->where = null;
-        $this->orderBy = null;
+        $this->reset();
 
         return $sql;
     }
@@ -212,6 +398,23 @@ class DB {
         $query = $this->conn->prepare($sql);
         if ($query->execute()) return true;
             else return false;
+    }
+
+    private function isState($sql)
+    {
+        $sql = empty($this->where) ? $sql : " {$this->state} " . $sql;
+        $this->state = 'AND';
+        return $sql;
+    }
+
+    private function reset()
+    {
+        $this->table = null;
+        $this->select = null;
+        $this->where = null;
+        $this->groupBy = null;
+        $this->having = null;
+        $this->orderBy = null;
     }
 
     public function __destruct()
