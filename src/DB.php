@@ -18,8 +18,11 @@ class DB {
     {
         $driver = isset($config['driver']) ? $config['driver'] : 'mysql';
         $host = isset($config['host']) ? $config['host'] : 'localhost';
+        $port = isset($config['port']) ? $config['port'] : (strstr($config['host'], ':') ? explode(':', $config['host'])[1] : '');
         
-        $dns = $driver . ":host=" . $host . ";dbname=" . $config['database'] . ";";
+        $dns = $driver . ":host=" . str_replace(':' . $port, '', $host)
+            . ($port != '' ? ';port=' . $port : '')
+            . ";dbname=" . $config['database'] . ";";
 
         try {
             $this->conn = new PDO($dns, $config['username'], $config['password']);
@@ -177,7 +180,7 @@ class DB {
         $values = '';
 
         foreach ($fields as $key => $val) {
-            $values .= is_int($val) ? $val : "'{$val}'" . ",";
+            $values .= (is_int($val) ? $val : "'{$val}'") . ",";
         }
         
         $sql = sprintf("INSERT INTO %s (%s) VALUES(%s)", $this->table, $columns, substr($values, 0, -1));
