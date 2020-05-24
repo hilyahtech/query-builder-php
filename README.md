@@ -1,6 +1,6 @@
 # Query Builder PHP
 
-Query Builder PDO untuk PHP, dukungan MySQL.
+Query Builder dengan PHP PDO dapat digunakan dengan mudah dan akses data lebih cepat.
 
 ## Instalasi
 Cara menginstall Query Builder PHP melalui [composer](http://getcomposer.org), kemudian jalankan perintah berikut untuk instalasi.
