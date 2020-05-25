@@ -45,37 +45,37 @@ class DB {
 
     public function min($field, $name = null)
     {
-        $this->select = "MIN({$field})" . (!is_null($name) ? " AS {$name}" : '');
+        $this->select = $this->isSelect('MIN', $field, $name);
         return $this;
     }
 
     public function max($field, $name = null)
     {
-        $this->select = "MAX({$field})" . (!is_null($name) ? " AS {$name}" : '');
+        $this->select = $this->isSelect('MAX', $field, $name);
         return $this;
     }
 
     public function count($field, $name = null)
     {
-        $this->select = "COUNT({$field})" . (!is_null($name) ? " AS {$name}" : '');
+        $this->select = $this->isSelect('COUNT', $field, $name);
         return $this;
     }
 
     public function avg($field, $name = null)
     {
-        $this->select = "AVG({$field})" . (!is_null($name) ? " AS {$name}" : '');
+        $this->select = $this->isSelect('AVG', $field, $name);
         return $this;
     }
 
     public function sum($field, $name = null)
     {
-        $this->select = "SUM({$field})" . (!is_null($name) ? " AS {$name}" : '');
+        $this->select = $this->isSelect('SUM', $field, $name);
         return $this;
     }
 
-    public function select($fields)
+    public function select($field)
     {
-        $this->select = is_array($fields) ? implode(',', $fields) : $fields;
+        $this->select = $this->isIm($field);
         return $this;
     }
 
@@ -344,19 +344,27 @@ class DB {
         return $sql;
     }
     
-    public function get()
+    public function get($select = null)
     {
+        $this->select .= !empty($select) ? ', ' . $this->isIm($select) : '';
+
         $sql = sprintf("SELECT %s FROM %s %s", $this->select, $this->table, $this->setExtract());
+
         $result = $this->conn->prepare($sql);
         $result->execute();
+
         return $result->fetchAll();
     }
 
-    public function first()
+    public function first($select = null)
     {
+        $this->select .= !empty($select) ? ', ' . $this->isIm($select) : '';
+
         $sql = sprintf("SELECT %s FROM %s %s LIMIT 1", $this->select, $this->table, $this->setExtract());
+
         $result = $this->conn->prepare($sql);
         $result->execute();
+
         return $result->fetchAll();
     }
 

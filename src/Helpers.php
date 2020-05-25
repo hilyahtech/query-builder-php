@@ -14,4 +14,9 @@ trait Helpers {
         return is_array($field) ? implode(', ', $field) : $field;
     }
 
+    private function isSelect($sql, $field, $name)
+    {
+        return "{$sql}({$field})" . (!is_null($name) ? " AS {$name}" : '');
+    }
+
 }
