@@ -39,7 +39,7 @@ class DB {
 
     public function table($table)
     {
-        $this->table = is_array($table) ? implode(',', $table) : $table;
+        $this->table = $this->isIm($table);
         return $this;
     }
 
@@ -150,10 +150,7 @@ class DB {
 
     public function whereNull($column)
     {
-        $_where = "{$column} IS NULL";
-
-        $this->where .= $this->isState($_where);
-
+        $this->where .= $this->isState("{$column} IS NULL");
         return $this;
     }
 
@@ -167,10 +164,7 @@ class DB {
 
     public function whereNotNull($column)
     {
-        $_where = "{$column} IS NOT NULL";
-
-        $this->where .= $this->isState($_where);
-
+        $this->where .= $this->isState("{$column} IS NOT NULL");
         return $this;
     }
 
@@ -299,7 +293,6 @@ class DB {
     public function groupBy($values)
     {
         $this->groupBy = " GROUP BY {$this->isIm($values)}";
-
         return $this;
     }
 
@@ -326,7 +319,6 @@ class DB {
     public function orderBy($column, $sort = 'ASC')
     {
         $this->orderBy = " ORDER BY {$column} {$sort}";
-
         return $this;
     }
 
