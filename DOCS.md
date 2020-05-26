@@ -71,6 +71,7 @@ $db = new \HilyahTech\QueryBuilder\DB($config);
 * [select functions (min, max, count, avg, sum)](#select-functions-min-max-count-avg-sum)
 * [table](#table)
 * [get and first](#get-and-first)
+* [join](#join)
 * [where](#where)
 * [where in](#where-in)
 * [between](#between)
@@ -127,6 +128,27 @@ $db->table('users')->get();
 
 $db->table('users')->first();
 # sql: "SELECT * FROM users LIMIT 1"
+```
+
+### join
+Ada 7 Method join
+
+* join()
+* leftJoin()
+* rightJoin()
+* leftOuterJoin()
+* rightOuterJoin()
+* fullOuterJoin()
+
+```php
+$db->table('test')->join('check', 'test.id', 'check.id')->get();
+# sql: "SELECT * FROM test JOIN check ON test.id = check.id"
+
+$db->table('test')->leftJoin('check', 'test.id', 'check.id')->get();
+# sql: "SELECT * FROM test LEFT JOIN check ON test.id = check.id"
+
+$db->table('test')->fullOuterJoin('check', 'test.id', '=', 'check.id')->get();
+# sql: "SELECT * FROM test FULL OUTER JOIN check ON test.id = check.id"
 ```
 
 ### where
