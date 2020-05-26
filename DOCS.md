@@ -52,6 +52,9 @@ $config = [
     # Default value: localhost
     'host' => 'localhost',
 
+    # Port (optional)
+    'port' => ''
+
     # Database name (require)
     'database' => 'test',
 
