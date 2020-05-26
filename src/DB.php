@@ -10,6 +10,7 @@ class DB {
     private $conn;
     private $table;
     private $select = '*';
+    private $join;
     private $where;
     private $groupBy;
     private $having;
@@ -76,6 +77,52 @@ class DB {
     public function select($field)
     {
         $this->select = $this->isIm($field);
+        return $this;
+    }
+
+    public function join($table, $key = null, $op = '', $foreign = null, $sql = '')
+    {
+        $setForeign = !is_null($foreign) ? $foreign : $op;
+        $setOp = !is_null($foreign) ? $op : '=';
+
+        $this->join = " {$sql} JOIN {$table} ON {$key} {$setOp} {$setForeign} ";
+
+        return $this;
+    }
+
+    public function innerJoin($table, $key, $op, $foreign = null)
+    {
+        $this->join($table, $key, $op, $foreign, 'INNER');
+        return $this;
+    }
+
+    public function leftJoin($table, $key, $op, $foreign = null)
+    {
+        $this->join($table, $key, $op, $foreign, 'LEFT');
+        return $this;
+    }
+
+    public function rightJoin($table, $key, $op, $foreign = null)
+    {
+        $this->join($table, $key, $op, $foreign, 'RIGHT');
+        return $this;
+    }
+    
+    public function leftOuterJoin($table, $key, $op, $foreign = null)
+    {
+        $this->join($table, $key, $op, $foreign, 'LEFT OUTER');
+        return $this;
+    }
+    
+    public function rightOuterJoin($table, $key, $op, $foreign = null)
+    {
+        $this->join($table, $key, $op, $foreign, 'RIGHT OUTER');
+        return $this;
+    }
+    
+    public function fullOuterJoin($table, $key, $op, $foreign = null)
+    {
+        $this->join($table, $key, $op, $foreign, 'FULL OUTER');
         return $this;
     }
 
@@ -326,6 +373,7 @@ class DB {
     {
         $sql = '';
 
+        $sql .= $this->join;
         $sql .= !empty($this->where) ? 'WHERE ' . $this->where : '';
         $sql .= $this->groupBy;
         $sql .= $this->having;
@@ -341,7 +389,7 @@ class DB {
         $this->select .= !empty($select) ? ', ' . $this->isIm($select) : '';
 
         $sql = sprintf("SELECT %s FROM %s %s", $this->select, $this->table, $this->setExtract());
-
+        
         $result = $this->conn->prepare($sql);
         $result->execute();
 
@@ -411,6 +459,7 @@ class DB {
     {
         $this->table = null;
         $this->select = null;
+        $this->join = null;
         $this->where = null;
         $this->groupBy = null;
         $this->having = null;
