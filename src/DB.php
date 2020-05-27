@@ -40,9 +40,11 @@ class DB
         }
     }
 
-    public function table($table)
+    public function table($table, $as = null)
     {
-        $this->table = $this->isTable($table);
+        $as = !is_null($as) && !is_array($table) ? " AS {$as}" : '';
+        $this->table = $this->isTable($table) . $as;
+
         return $this;
     }
 
