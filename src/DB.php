@@ -13,9 +13,7 @@ class DB
     private $select = '*';
     private $join;
     private $where;
-    private $groupBy;
-    private $having;
-    private $orderBy;
+    private $query;
     private $op = ['like', '=', '!=', '<', '>', '<=', '>=', '<>'];
     private $state = 'AND';
     private $not;
@@ -346,7 +344,7 @@ class DB
 
     public function groupBy($values)
     {
-        $this->groupBy = " GROUP BY {$this->isIm($values)}";
+        $this->query .= " GROUP BY {$this->isIm($values)}";
         return $this;
     }
 
@@ -365,14 +363,38 @@ class DB
             $_having .= "{$field} {$op} {$value}";
         }
         
-        $this->having = $_having;
+        $this->query .= $_having;
         
         return $this;
     }
 
     public function orderBy($column, $sort = 'ASC')
     {
-        $this->orderBy = " ORDER BY {$column} {$sort}";
+        $this->query .= " ORDER BY {$column} {$sort}";
+        return $this;
+    }
+
+    public function limit($field1, $field2 = null)
+    {
+        $this->query .= " LIMIT {$field1} " . (!is_null($field2) ? ", {$field2}" : '');
+        
+        return $this;
+    }
+
+    public function offset($field)
+    {
+        $this->query .= " OFFSET {$field}";
+        return $this;
+    }
+
+    public function pagination($perPage, $page = 1)
+    {
+        $this->limit($perPage);
+
+        $page = (($page > 0 ? $page : 1) - 1) * $perPage;
+
+        $this->offset($page);
+
         return $this;
     }
 
@@ -382,9 +404,7 @@ class DB
 
         $sql .= $this->join;
         $sql .= !empty($this->where) ? 'WHERE ' . $this->where : '';
-        $sql .= $this->groupBy;
-        $sql .= $this->having;
-        $sql .= $this->orderBy;
+        $sql .= $this->query;
 
         $this->reset();
 
@@ -468,9 +488,7 @@ class DB
         $this->select = null;
         $this->join = null;
         $this->where = null;
-        $this->groupBy = null;
-        $this->having = null;
-        $this->orderBy = null;
+        $this->query = null;
     }
 
     public function __destruct()
