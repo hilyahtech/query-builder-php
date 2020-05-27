@@ -4,7 +4,8 @@ namespace HilyahTech\QueryBuilder;
 
 use PDO;
 
-class DB {
+class DB
+{
     use Helpers;
 
     private $conn;
@@ -24,6 +25,7 @@ class DB {
         $driver = isset($config['driver']) ? $config['driver'] : 'mysql';
         $host = isset($config['host']) ? $config['host'] : 'localhost';
         $port = isset($config['port']) ? $config['port'] : (strstr($config['host'], ':') ? explode(':', $config['host'])[1] : '');
+        $this->prefix = isset($config['prefix']) ? $config['prefix'] : '';
         
         $dns = $driver . ":host=" . str_replace(':' . $port, '', $host)
             . ($port != '' ? ';port=' . $port : '')
@@ -40,7 +42,7 @@ class DB {
 
     public function table($table)
     {
-        $this->table = $this->isIm($table);
+        $this->table = $this->isTable($table);
         return $this;
     }
 
@@ -85,7 +87,10 @@ class DB {
         $setForeign = !is_null($foreign) ? $foreign : $op;
         $setOp = !is_null($foreign) ? $op : '=';
 
-        $this->join = " {$sql} JOIN {$table} ON {$key} {$setOp} {$setForeign} ";
+        $key = strpos($this->table, 'AS') ? $key : $this->isTable($key);
+        $setForeign = strpos($table, 'AS') ? $setForeign : $this->isTable($setForeign);
+
+        $this->join .= " {$sql} JOIN {$this->isTable($table)} ON {$key} {$setOp} {$setForeign} ";
 
         return $this;
     }
