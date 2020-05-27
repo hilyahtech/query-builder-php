@@ -41,18 +41,22 @@ $db = new \HilyahTech\QueryBuilder\DB($config);
 # Penggunakan Methods
 
 ## Config
+Database driver yang sudah diuji MySQL dan PostgreSQL.
+
 ```php
 $config = [
     # Database driver (optional)
     # Default value: mysql
-    # values: mysql
+    # values: mysql, pgsql
     'driver' => 'mysql',
 
-    # Host name and IP Address (optional)
+    # Host name or IP Address (optional)
+    # Example: 127.0.0.1:8000 (hostname:port)
     # Default value: localhost
     'host' => 'localhost',
 
     # Port (optional)
+    # Default value: null
     'port' => ''
 
     # Database name (require)
@@ -62,7 +66,11 @@ $config = [
     'username' => 'root',
 
     # Database password (require)
-    'password' => ''
+    'password' => '',
+
+    # Database prefix (optional)
+    # Default value: null
+    'prefix' => ''
 ];
 
 $db = new \HilyahTech\QueryBuilder\DB($config);
@@ -134,6 +142,22 @@ $db->table('users')->first();
 ```
 
 ### join
+Peringatan!: Mohon perhatikan jika menggunakan prefix apabila table menggunkan AS (alias) maka contohnya ht_users AS u dan ht_posts AS p. Kami berharap ini dapat membantu jika ada kendala saat menggunakan prefix dan join.
+
+```php
+# Jika menggunakan prefix
+$db->table('users AS u')->join('posts AS p', 'u.id', 'p.user_id')->get();
+# sql: "SELECT * FROM ht_users AS u JOIN ht_posts AS p ON u.id = p.user_id"
+
+# Tidak menggunakan prefix
+$db->table('users AS u')->join('posts AS p', 'u.id', 'p.user_id')->get();
+# sql: "SELECT * FROM users AS u JOIN posts AS p ON u.id = p.user_id"
+
+# Jika menggunakan prefix dan tidak menggunakan AS (alias)
+$db->table('users')->join('posts', 'users.id', 'posts.user_id')->get();
+# sql: "SELECT * FROM ht_users JOIN ht_posts ON ht_users.id = ht_posts.user_id"
+```
+
 Ada 7 Method join
 
 * join()
@@ -144,14 +168,14 @@ Ada 7 Method join
 * fullOuterJoin()
 
 ```php
-$db->table('test')->join('check', 'test.id', 'check.id')->get();
-# sql: "SELECT * FROM test JOIN check ON test.id = check.id"
+$db->table('test')->join('check', 'test.id', 'check.test_id')->get();
+# sql: "SELECT * FROM test JOIN check ON test.id = check.test_id"
 
-$db->table('test')->leftJoin('check', 'test.id', 'check.id')->get();
-# sql: "SELECT * FROM test LEFT JOIN check ON test.id = check.id"
+$db->table('test')->leftJoin('check', 'test.id', 'check.test_id')->get();
+# sql: "SELECT * FROM test LEFT JOIN check ON test.id = check.test_id"
 
-$db->table('test')->fullOuterJoin('check', 'test.id', '=', 'check.id')->get();
-# sql: "SELECT * FROM test FULL OUTER JOIN check ON test.id = check.id"
+$db->table('test')->fullOuterJoin('check', 'test.id', '=', 'check.test_id')->get();
+# sql: "SELECT * FROM test FULL OUTER JOIN check ON test.id = check.test_id"
 ```
 
 ### where
