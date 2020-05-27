@@ -68,6 +68,10 @@ $config = [
     # Database password (require)
     'password' => '',
 
+    # Database charset (optional)
+    # Default value: 'utf8'
+    'charset' => 'utf8',
+
     # Database prefix (optional)
     # Default value: null
     'prefix' => ''

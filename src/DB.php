@@ -25,11 +25,13 @@ class DB
         $driver = isset($config['driver']) ? $config['driver'] : 'mysql';
         $host = isset($config['host']) ? $config['host'] : 'localhost';
         $port = isset($config['port']) ? $config['port'] : (strstr($config['host'], ':') ? explode(':', $config['host'])[1] : '');
+        $charset = isset($config['charset']) ? $config['charset'] : 'utf8';
         $this->prefix = isset($config['prefix']) ? $config['prefix'] : '';
         
         $dns = $driver . ":host=" . str_replace(':' . $port, '', $host)
             . ($port != '' ? ';port=' . $port : '')
-            . ";dbname=" . $config['database'] . ";";
+            . ";dbname=" . $config['database']
+            . ";charset=" . $charset;
 
         try {
             $this->conn = new PDO($dns, $config['username'], $config['password']);
