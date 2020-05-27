@@ -94,6 +94,9 @@ $db = new \HilyahTech\QueryBuilder\DB($config);
 * [groupBy](#groupby)
 * [having](#having)
 * [orderBy](#orderby)
+* [limit](#limit)
+* [offset](#offset)
+* [pagination](#pagination)
 * [insert](#insert)
 * [update](#update)
 * [delete](#delete)
@@ -130,6 +133,10 @@ $db->table(['users', 'roles']);
 # sql: "SELECT * FROM users, roles"
 
 $db->table('users AS user');
+# sql: "SELECT * FROM users AS user"
+
+# paremeter 2 hanya bisa digunakan jika kedua perameter string
+$db->table('users', 'user');
 # sql: "SELECT * FROM users AS user"
 ```
 
@@ -258,6 +265,30 @@ $db->table('test')->orderBy('name')->get();
 
 $db->table('test')->orderBy('name', 'DESC')->get();
 # sql: "SELECT * FROM test ORDER BY name DESC"
+```
+
+### limit
+```php
+$db->table('test')->limit(10)->get();
+# sql: "SELECT * FROM test LIMIT 10"
+
+$db->table('test')->limit(10, 20)->get();
+# sql: "SELECT * FROM test LIMIT 10, 20"
+```
+
+### offset
+```php
+$db->table('test')->offset(10)->get();
+# sql: "SELECT * FROM test OFFSET 10"
+```
+
+### pagination
+```php
+$db->table('test')->pagination(10, 1)->get();
+# sql: "SELECT * FROM test LIMIT 10 OFFSET 0"
+
+$db->table('test')->pagination(10, 2)->get();
+# sql: "SELECT * FROM test LIMIT 10 OFFSET 10"
 ```
 
 ### insert
