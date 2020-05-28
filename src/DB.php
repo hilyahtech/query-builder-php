@@ -165,15 +165,12 @@ class DB
             }
         }
 
-        return $_where;
+        $this->where .= $this->isState($_where);
     }
 
     public function where($column, $op = null, $value = null)
     {
-        $_where = $this->setWhere($column, $op, $value);
-
-        $this->where .= $this->isState($_where);
-        
+        $this->setWhere($column, $op, $value);
         return $this;
     }
 
@@ -187,10 +184,7 @@ class DB
 
     public function notWhere($column, $op = null, $value = null)
     {
-        $_where = $this->setWhere($column, $op, $value, 'NOT');
-
-        $this->where .= $this->isState($_where);
-
+        $this->setWhere($column, $op, $value, 'NOT');
         return $this;
     }
 
