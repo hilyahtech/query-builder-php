@@ -30,3 +30,7 @@ Halaman dokumentasi: [Docs](https://github.com/hilyahtech/query-builder-php/blob
 ## Penulis
 Tim pengembang Query Builder PHP.
 - [Febri Hidayan](mailto:febrihidayan20@gmail.com)
+
+## Donasi
+Berikan saya donasi untuk terus mengembangkan.
+- [Paypal](https://www.paypal.me/febrihidayan)
